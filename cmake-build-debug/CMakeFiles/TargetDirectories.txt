@@ -1,0 +1,3 @@
+/home/ayttekao/CLionProjects/Fundi/Fundi_6/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/home/ayttekao/CLionProjects/Fundi/Fundi_6/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/ayttekao/CLionProjects/Fundi/Fundi_6/cmake-build-debug/CMakeFiles/Fundi_6.dir
