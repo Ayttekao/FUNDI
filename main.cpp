@@ -1,4 +1,6 @@
 #include <iostream>
+#include <fstream>
+#include <vector>
 
 class TeX_convertible /* 0 */
 {
@@ -19,8 +21,11 @@ public:
         matrixData = nullptr;
     }
     /* Ключевое слово explicit делает этот конструктор закрытым для выполнения любых неявных преобразований */
-    explicit SquareMatrix(unsigned int inputDimension)
+    explicit SquareMatrix(int inputDimension)
     {
+        if (inputDimension < 1)
+            throw std::invalid_argument("IncorrectSize");
+
         dimension = inputDimension;
 
         matrixData = new float*[inputDimension];
@@ -72,6 +77,13 @@ public:
         return epsilon;
     }
 
+    void fillNum(float num)
+    {
+        for (int row = 0; row < dimension; row++)
+            for (int col = 0; col < dimension; col++)
+                matrixData[row][col] = num;
+    }
+
     bool operator==(const SquareMatrix&rightMatrix)
     {
         unsigned int size = rightMatrix.dimension;
@@ -110,8 +122,11 @@ public:
         return *this;
     }
 
-    SquareMatrix operator+=(const SquareMatrix& rightMatrix) const
+    SquareMatrix operator+=(const SquareMatrix& rightMatrix)
     {
+        if (dimension != rightMatrix.dimension)
+            throw std::invalid_argument("Matrix sizes must be the same");
+
         for (int row = 0; row < rightMatrix.dimension; row++)
             for (int col = 0; col < rightMatrix.dimension; col++)
                 matrixData[row][col] += rightMatrix.matrixData[row][col];
@@ -119,13 +134,15 @@ public:
         return *this;
     }
 
-    SquareMatrix operator+(const SquareMatrix& rightMatrix) const
+    SquareMatrix operator+(const SquareMatrix& rightMatrix)
     {
         return SquareMatrix(*this) += rightMatrix;
     }
 
-    SquareMatrix operator-=(const SquareMatrix& rightMatrix) const
+    SquareMatrix operator-=(const SquareMatrix& rightMatrix)
     {
+        if (dimension != rightMatrix.dimension)
+            throw std::invalid_argument("Matrix sizes must be the same");
         for (int row = 0; row < rightMatrix.dimension; row++)
             for (int col = 0; col < rightMatrix.dimension; col++)
                 matrixData[row][col] -= rightMatrix.matrixData[row][col];
@@ -133,7 +150,7 @@ public:
         return *this;
     }
 
-    SquareMatrix operator-(const SquareMatrix& rightMatrix) const
+    SquareMatrix operator-(const SquareMatrix& rightMatrix)
     {
         return SquareMatrix(*this) -= rightMatrix;
     }
@@ -142,12 +159,12 @@ public:
     {
         SquareMatrix tempMatrix(getDimension());
 
+        if (dimension != rightMatrix.dimension)
+            throw std::invalid_argument("Matrix sizes must be the same");
         for (int row = 0; row < rightMatrix.dimension; row++)
             for (int col = 0; col < rightMatrix.dimension; col++)
-            {
                 for (int inner = 0; inner < rightMatrix.dimension; inner++)
                     tempMatrix.matrixData[row][col] += matrixData[row][inner] * rightMatrix.matrixData[inner][col];
-            }
 
         *this = tempMatrix;
         return *this;
@@ -158,7 +175,7 @@ public:
         return SquareMatrix(*this) *= rightMatrix;
     }
 
-    SquareMatrix operator*=(float num) const
+    SquareMatrix operator*=(float num)
     {
         for (int row = 0; row < this->dimension; row++)
             for (int col = 0; col < this->dimension; col++)
@@ -167,7 +184,7 @@ public:
         return *this;
     }
 
-    SquareMatrix operator*(float num) const
+    SquareMatrix operator*(float num)
     {
         return *this *= num;
     }
@@ -201,6 +218,7 @@ public:
 
     friend std::istream& operator>>(std::istream &in, SquareMatrix& rightMatrix)
     {
+        int tmpDimension;
         if (rightMatrix.dimension > 0)
         {
             for (int row = 0; row < rightMatrix.dimension; row++)
@@ -208,7 +226,11 @@ public:
             delete[] rightMatrix.matrixData;
         }
 
-        in >> rightMatrix.dimension;
+        in >> tmpDimension;
+        if (tmpDimension < 1)
+            throw std::invalid_argument("IncorrectSize");
+        else
+            rightMatrix.dimension = tmpDimension;
 
         rightMatrix.matrixData = new float*[rightMatrix.dimension];
         for (int row = 0; row < rightMatrix.dimension; row++)
@@ -234,7 +256,7 @@ public:
 
     friend float trace(SquareMatrix& originalMatrix);
 
-    friend SquareMatrix fastMatrixPow(const SquareMatrix& originalMatrix, int n);
+    friend SquareMatrix matrixPow(const SquareMatrix& originalMatrix, int n);
 
     virtual std::string convert() const override
     {
@@ -252,6 +274,15 @@ float determination(SquareMatrix& rightMatrix)
     else if (rightMatrix.dimension == 2)
         det = rightMatrix.matrixData[0][0] * rightMatrix.matrixData[1][1] -
                 (rightMatrix.matrixData[1][0] * rightMatrix.matrixData[0][1]);
+    else if (rightMatrix.dimension == 3)
+    {
+        det = rightMatrix.matrixData[0][0] * rightMatrix.matrixData[1][1] * rightMatrix.matrixData[2][2] -
+                rightMatrix.matrixData[0][0] * rightMatrix.matrixData[1][2] * rightMatrix.matrixData[2][1]
+        - rightMatrix.matrixData[0][1] * rightMatrix.matrixData[1][0] * rightMatrix.matrixData[2][2] +
+        rightMatrix.matrixData[0][1] * rightMatrix.matrixData[1][2] * rightMatrix.matrixData[2][0]
+        + rightMatrix.matrixData[0][2] * rightMatrix.matrixData[1][0] * rightMatrix.matrixData[2][1] -
+        rightMatrix.matrixData[0][2] * rightMatrix.matrixData[1][1] * rightMatrix.matrixData[2][0];
+    }
     else
         for (int i = 0; i < rightMatrix.dimension; ++i)
         {
@@ -393,31 +424,85 @@ int binpow(int a, int n)
     return res;
 }
 
-SquareMatrix fastMatrixPow(const SquareMatrix& originalMatrix, int n)
+SquareMatrix matrixPow(const SquareMatrix& originalMatrix, int n)
 {
-    SquareMatrix result = originalMatrix;
+    SquareMatrix result(originalMatrix);
 
-    while (n)
-        if (n & 1)
-        {
-            result = result * originalMatrix;
-            --n;
-        }
-        else
-        {
-            result = result * result;
-            n >>= 1;
-        }
+    while (n - 1)
+    {
+        result *= originalMatrix;
+        --n;
+    }
 
     return result;
 }
 
+SquareMatrix matrixExp(const SquareMatrix& originalMatrix, int pow)
+{
+    auto fact = [](auto& self, int N)
+    {
+        if(N < 0) // если пользователь ввел отрицательное число
+            return 0; // возвращаем ноль
+        else if (N == 0) // если пользователь ввел ноль,
+            return 1; // возвращаем факториал от нуля, который равен 1
+        else // во всех остальных случаях
+        {
+            // Вызываем лямбду передавая в качестве аргумента лмябду по ссылке дальше в саму себя
+            return N * self(self, N - 1); // выполняем рекурсивный вызовы функции
+        }
+    };
+
+    SquareMatrix result(originalMatrix.getDimension());
+    size_t count = 0;
+    for (int i = 0; i < result.getDimension(); i++)
+        result[i][i] = 1.0;
+
+    while (count++ < pow)
+    {
+        result += (float(1.0) / fact(fact, count)) * matrixPow(originalMatrix, count);
+    }
+
+    return result;
+}
+
+std::vector<std::string> split(const std::string& str, const std::string& delim)
+{
+    std::vector<std::string> tokens;
+    size_t prev = 0, pos = 0;
+    do
+    {
+        pos = str.find(delim, prev);
+        if (pos == std::string::npos)
+            pos = str.length();
+        std::string token = str.substr(prev, pos-prev);
+        if (!token.empty())
+            tokens.push_back(token);
+        prev = pos + delim.length();
+    }
+    while (pos < str.length() && prev < str.length());
+    return tokens;
+}
+
+void interpreter(std::ifstream& inputFile)
+{
+
+}
+
 int main()
 {
-    SquareMatrix testMatrix;
-    std::cin >> testMatrix;
-    std::cout << testMatrix << std::endl;
-    testMatrix *= testMatrix;
-    std::cout << testMatrix << std::endl;
+    try
+    {
+        SquareMatrix testMatrix;
+        SquareMatrix secondMatrix;
+        std::cin >> testMatrix;
+        std::cin >> secondMatrix;
+        std::cout << testMatrix << std::endl;
+        std::cout << secondMatrix << std::endl;
+        std::cout << testMatrix * secondMatrix;
+    }
+    catch (std::invalid_argument&)
+    {
+        std::cout << "Ты что, дурак блять?";
+    }
     return 0;
 }
