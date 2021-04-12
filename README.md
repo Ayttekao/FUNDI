@@ -1,2 +1,2 @@
 # FUNDI
-Shitcode frmoe my lab's <3
+Shitcode from my lab's <3
