@@ -26,10 +26,6 @@ public:
     /* Ключевое слово explicit делает этот конструктор закрытым для выполнения любых неявных преобразований */
     explicit SquareMatrix(int inputDimension)
     {
-//        if (inputDimension < 1)
-//            // TODO: not do this!
-//            throw std::invalid_argument("IncorrectSize");
-
         dimension = inputDimension;
 
         matrixData = new float*[inputDimension];
@@ -60,34 +56,18 @@ public:
         if ( matrixData )
             for (int row = 0; row < dimension; row++ )
                 delete []matrixData[row];
-        dimension = 0;
         delete []matrixData;
     }
-
-    void setMatrix()
-    {
-        for (int row = 0; row < dimension; row++)
-            for (int col = 0; col < dimension; col++)
-                std::cin >> matrixData[row][col];
-    }
-
     unsigned int getDimension() const
     {
         return dimension;
     }
-
-    float getEpsilon() const
-    {
-        return epsilon;
-    }
-
-    void fillNum(const float& num)
+    void fillNum(const float num)
     {
         for (int row = 0; row < dimension; row++)
             for (int col = 0; col < dimension; col++)
                 matrixData[row][col] = num;
     }
-
     bool operator==(const SquareMatrix&rightMatrix) const
     {
         if (dimension != rightMatrix.dimension)
@@ -164,17 +144,17 @@ public:
 
     SquareMatrix& operator*=(const SquareMatrix& rightMatrix)
     {
-        SquareMatrix tempMatrix((int(dimension)));
-
         if (dimension != rightMatrix.dimension)
             throw std::invalid_argument("Matrix sizes must be the same");
+
+        SquareMatrix tempMatrix((int(dimension)));
+
         for (int row = 0; row < rightMatrix.dimension; row++)
             for (int col = 0; col < rightMatrix.dimension; col++)
                 for (int inner = 0; inner < rightMatrix.dimension; inner++)
                     tempMatrix.matrixData[row][col] += matrixData[row][inner] * rightMatrix.matrixData[inner][col];
 
-        *this = tempMatrix;
-        return *this;
+        return *this = tempMatrix;
     }
 
     SquareMatrix operator*(const SquareMatrix& rightMatrix) const
@@ -182,7 +162,7 @@ public:
         return SquareMatrix(*this) *= rightMatrix;
     }
 
-    SquareMatrix& operator*=(const float& num)
+    SquareMatrix& operator*=(float num)
     {
         for (int row = 0; row < dimension; row++)
             for (int col = 0; col < dimension; col++)
@@ -191,12 +171,12 @@ public:
         return *this;
     }
 
-    SquareMatrix operator*(const float& num) const
+    SquareMatrix operator*(float num) const
     {
         return SquareMatrix(*this) *= num;
     }
 
-    friend SquareMatrix operator*(const float& num, const SquareMatrix& rightMatrix)
+    friend SquareMatrix operator*(float num, const SquareMatrix& rightMatrix)
     {
         SquareMatrix result(rightMatrix);
         for (int row = 0; row < result.dimension; row++)
@@ -223,7 +203,7 @@ public:
             indexerParams.y < 0 || indexerParams.y >= dimension)
         {
             // TODO: throw an exception and handle it in calling method
-            throw std::exception();
+            throw std::exception(); // out of range
         }
         return matrixData[indexerParams.x][indexerParams.y];
     }
@@ -245,11 +225,7 @@ public:
     {
         int tmpDimension;
         if (rightMatrix.dimension > 0)
-        {
-            for (int row = 0; row < rightMatrix.dimension; row++)
-                delete[] rightMatrix.matrixData[row];
-            delete[] rightMatrix.matrixData;
-        }
+            rightMatrix.clearMatrix();
 
         in >> tmpDimension;
         if (tmpDimension < 1)
@@ -275,7 +251,6 @@ public:
             delete[] matrixData[row];
         delete[] matrixData;
         matrixData = nullptr;
-        // TODO: forgot to set dimension to zero :)
         dimension = 0;
     }
 
@@ -348,7 +323,6 @@ float determinant(const SquareMatrix& rightMatrix)
     if (rightMatrix.dimension == 1)
         det = rightMatrix[SquareMatrix::MatrixIndexer(0, 0)];
     else if (rightMatrix.dimension == 2)
-        // TODO: use overloaded indexer :)
         det = rightMatrix[SquareMatrix::MatrixIndexer(0, 0)] * rightMatrix[SquareMatrix::MatrixIndexer(1, 1)] -
                 (rightMatrix[SquareMatrix::MatrixIndexer(1, 0)] * rightMatrix[SquareMatrix::MatrixIndexer(0, 1)]);
     else if (rightMatrix.dimension == 3)
@@ -371,7 +345,7 @@ float determinant(const SquareMatrix& rightMatrix)
                 if (std::abs(tmpMatrix.matrixData[j][i]) > std::abs(tmpMatrix.matrixData[k][i]))
                     k = j;
 
-            if (std::abs(tmpMatrix.matrixData[k][i]) < rightMatrix.getEpsilon())
+            if (std::abs(tmpMatrix.matrixData[k][i]) < rightMatrix.epsilon)
             {
                 det = 0;
                 break;
@@ -387,7 +361,7 @@ float determinant(const SquareMatrix& rightMatrix)
                 tmpMatrix.matrixData[i][j] /= tmpMatrix.matrixData[i][i];
 
             for (int j = 0; j < rightMatrix.dimension; ++j)
-                if (j != i and std::abs(tmpMatrix.matrixData[j][i]) > tmpMatrix.getEpsilon())
+                if (j != i and std::abs(tmpMatrix.matrixData[j][i]) > tmpMatrix.epsilon)
                     for (k = i + 1; k < rightMatrix.dimension; ++k)
                         tmpMatrix.matrixData[j][k] -= tmpMatrix.matrixData[i][k] * tmpMatrix.matrixData[j][i];
         }
@@ -518,7 +492,7 @@ SquareMatrix matrixExp(const SquareMatrix& originalMatrix, int pow)
     for (int i = 0; i < result.getDimension(); i++)
         result[SquareMatrix::MatrixIndexer(i, i)] = 1.0;
 
-    while (count++ < pow)
+    while (count++ < pow) //TODO: итерационный процесс, нормы
     {
         result += (float(1.0) / float(fact(fact, count))) * matrixPow(originalMatrix, count);
     }
@@ -700,50 +674,11 @@ void interpreter(const std::string& inputFileName, const std::string& outputFile
     }
 }
 
-//class Factory
-//{
-//public:
-//    virtual SquareMatrix* Create(int size) = 0;
-//    virtual ~Factory()= default;
-//};
-//
-//class SquareMatrixFactory : public Factory
-//{
-//    SquareMatrix* Create(int size) override
-//    {
-//        if (size > 0)
-//            return new SquareMatrix;
-//        else
-//            throw std::exception();
-//    }
-//};
-//
-//SquareMatrix* foo(Factory *value, int size){
-//    return value->Create(size);
-//}
-
-int main()
+int main(int argc, char** argv)
 {
-    /*try
-    {
-        std::vector<float> vector = { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
-        SquareMatrix vecMatrix;
-        vecMatrix.createMatrixV2(vector.begin(), vector.end());
-        std::cout << vecMatrix;
-        SquareMatrix testMatrix(3);
-        SquareMatrix secondMatrix(2);
-        std::cin >> testMatrix;
-        std::cout << testMatrix << std::endl;
-        std::cout << testMatrix.convert();
-        std::cout << (testMatrix == secondMatrix) << std::endl;
-    }
-    catch (std::invalid_argument&)
-    {
-        std::cout << "Ты что, дурак блять?";
-    }*/
-
-
-    interpreter("/home/ayttekao/CLionProjects/Fundi/Fundi_6/test.txt",
-                "/home/ayttekao/CLionProjects/Fundi/Fundi_6/test_out.txt");
+    if (argc == 3)
+        interpreter(argv[1], argv[2]);
+    else
+        std::cout << "Wrong num of parameter";
     return 0;
 }
