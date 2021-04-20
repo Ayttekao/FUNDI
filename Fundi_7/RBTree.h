@@ -132,8 +132,8 @@ protected:
                 throw std::invalid_argument("The value is already in the tree!");
 
             node->parent = ptr;
-
-            insertFixup(node);
+            if (node->parent->color == RED)
+                insertFixup(node);
         }
         else
         {
@@ -443,8 +443,6 @@ public:
     ~RBTree()
     {
         freeMem(reinterpret_cast<RBNode<T>*>(this->root));
-        if (this->strategy_ != nullptr)
-            delete this->strategy_;
         delete NIL;
     }
     void vectorToTree(std::vector<T> values)

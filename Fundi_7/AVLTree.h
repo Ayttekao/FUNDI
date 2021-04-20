@@ -227,8 +227,6 @@ public:
     ~AVLTree() override
     {
         freeMem(reinterpret_cast<AVLTreeNode<T>*>(this->root));
-        if (this->strategy_ != nullptr)
-            delete this->strategy_;
     }
     void vectorToTree(std::vector<T> values)
     {
