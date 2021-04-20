@@ -1,0 +1,6 @@
+/home/ayttekao/CLionProjects/Fundi/Fundi_7/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/ayttekao/CLionProjects/Fundi/Fundi_7/cmake-build-debug/CMakeFiles/Fundi_7.dir
+/home/ayttekao/CLionProjects/Fundi/Fundi_7/cmake-build-debug/CMakeFiles/RBTreeTest.dir
+/home/ayttekao/CLionProjects/Fundi/Fundi_7/cmake-build-debug/CMakeFiles/wordProcessing.dir
+/home/ayttekao/CLionProjects/Fundi/Fundi_7/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/home/ayttekao/CLionProjects/Fundi/Fundi_7/cmake-build-debug/CMakeFiles/RelationTest.dir

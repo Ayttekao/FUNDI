@@ -1,0 +1,1 @@
+/usr/bin/c++ -g CMakeFiles/wordProcessing.dir/wordProcessingTask3.cpp.o -o wordProcessing 

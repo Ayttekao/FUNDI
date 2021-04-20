@@ -1,0 +1,24 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/ayttekao/CLionProjects/Fundi/Fundi_7/RBTreeTest.cpp
+binaryTree.h
+/home/ayttekao/CLionProjects/Fundi/Fundi_7/binaryTree.h
+string
+-
+vector
+-
+iostream
+-
+
+/home/ayttekao/CLionProjects/Fundi/Fundi_7/binaryTree.h
+strategy.h
+/home/ayttekao/CLionProjects/Fundi/Fundi_7/strategy.h
+
+/home/ayttekao/CLionProjects/Fundi/Fundi_7/strategy.h
+
