@@ -20,15 +20,8 @@ class Relation
 private:
     std::forward_list<T> dataList;
     std::map<int, BinaryTree<T>*> indexMap;
-    void addTreeToMap(int indexGuid, BinaryTree<T>* tree)
-    {
-        indexMap.insert(std::pair<int, BinaryTree<T>*>(indexGuid, tree));
-        for (auto iter : dataList)
-            (*tree).addNode(static_cast<T&&>(iter));
-    }
 public:
-    Relation()= default;
-    explicit Relation(const std::forward_list<T>& _dataList)
+    Relation(const std::forward_list<T>& _dataList)
     {
         dataList = _dataList;
     }
@@ -46,6 +39,13 @@ public:
         for (std::pair<int, BinaryTree<T>*> it : indexMap)
             it.second->deleteNode(static_cast<T&&>(data));
     }
+    
+    void addTreeToMap(int indexGuid, BinaryTree<T>* tree)
+    {
+        indexMap.insert(std::pair<int, BinaryTree<T>*>(indexGuid, tree));
+        for (auto iter : dataList)
+            (*tree).addNode(static_cast<T&&>(iter));
+    }
 
     int addIndex(bool typeTree, Strategy<T> *strategy)
     {
@@ -56,23 +56,28 @@ public:
         else // AVL
             tree = new AVLTree<T>(strategy);
 
-        if (tree != nullptr)
-            addTreeToMap(indexGuid, tree);
-        else
-            throw std::bad_alloc();
+        addTreeToMap(indexGuid, tree);
 
         return indexGuid;
     }
 
     void deleteIndex(int indexGuid)
     {
-        delete indexMap[indexGuid];
-        indexMap.erase(indexGuid);
+        if (indexMap.find(indexGuid) != indexMap.end())
+        {
+            delete indexMap[indexGuid];
+            indexMap.erase(indexGuid);
+        }
+        else
+            throw std::invalid_argument("Index does not exist!");
     }
 
-    bool findDataByValue(int indexGuid, T&& data)
+    bool findDataByValue(T&& data)
     {
-        return indexMap[indexGuid]->searchByValue(static_cast<T&&>(data)) != nullptr;
+        for (auto iter : dataList)
+            if (iter == data)
+                return true;
+        return false;
     }
 
     ~Relation()
