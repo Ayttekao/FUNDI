@@ -21,7 +21,8 @@ private:
     std::forward_list<T> dataList;
     std::map<int, BinaryTree<T>*> indexMap;
 public:
-    Relation(const std::forward_list<T>& _dataList)
+    Relation() = default;
+    explicit Relation(const std::forward_list<T>& _dataList)
     {
         dataList = _dataList;
     }
@@ -35,11 +36,17 @@ public:
 
     void deleteData(T&& data)
     {
-        dataList.remove(data);
-        for (std::pair<int, BinaryTree<T>*> it : indexMap)
-            it.second->deleteNode(static_cast<T&&>(data));
+        for (auto iter : dataList)
+            if (iter == data)
+            {
+                dataList.remove(data);
+                for (std::pair<int, BinaryTree<T>*> it : indexMap)
+                    it.second->deleteNode(static_cast<T&&>(data));
+                return;
+            }
+        throw std::invalid_argument("Value doesn't exist!");
     }
-    
+
     void addTreeToMap(int indexGuid, BinaryTree<T>* tree)
     {
         indexMap.insert(std::pair<int, BinaryTree<T>*>(indexGuid, tree));
