@@ -132,7 +132,7 @@ protected:
                 throw std::invalid_argument("The value is already in the tree!");
 
             node->parent = ptr;
-            if (node->parent->color == RED)
+            if (node->parent->color == RED) // if parent black all OK
                 insertFixup(node);
         }
         else
@@ -348,14 +348,14 @@ protected:
         containing find
         */
         RBNode<T> *temp = reinterpret_cast<RBNode<T>*>(this->root);
-        int comparisonResult;
-        while (temp != NIL && temp->value != find)
+        int comparisonResult = this->strategy_->compare(find, temp->value);
+        while (temp != NIL && comparisonResult != 0)
         {
-            comparisonResult = this->strategy_->compare(find, temp->value);
             if (comparisonResult == -1)
                 temp = temp->left;
             else
                 temp = temp->right;
+            comparisonResult = this->strategy_->compare(find, temp->value);
         }
 
         return temp;
@@ -425,7 +425,6 @@ protected:
         this->root = nullptr;
     }
 public:
-    RBTree() { this->root = nullptr; NIL = new RBNode<T>(-1, BLACK); }
     RBTree(std::vector<T> values, Strategy<T>* strategy) : RBTree(strategy)
     {
         NIL = new RBNode<T>(-1, BLACK);
@@ -434,7 +433,7 @@ public:
     explicit RBTree(Strategy<T>* strategy) : BinaryTree<T>(strategy)
     {
         this->root = nullptr;
-        NIL = new RBNode<T>(-1, BLACK);
+        NIL = new RBNode<T>(T(), BLACK);
     }
     void printTree()
     {
@@ -444,6 +443,7 @@ public:
     {
         freeMem(reinterpret_cast<RBNode<T>*>(this->root));
         delete NIL;
+        delete this->strategy_;
     }
     void vectorToTree(std::vector<T> values)
     {

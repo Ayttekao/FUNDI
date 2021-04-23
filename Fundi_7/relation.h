@@ -27,6 +27,15 @@ public:
         dataList = _dataList;
     }
 
+    void addDataList(const std::forward_list<T>& _dataList)
+    {
+        dataList = _dataList;
+        for (auto iter : indexMap)
+            for (auto secondIter : dataList)
+                iter.second->addNode(static_cast<T&&>(secondIter));
+
+    }
+
     void addData(T&& data)
     {
         dataList.push_front(data);

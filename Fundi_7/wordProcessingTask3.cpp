@@ -10,6 +10,7 @@
 #include <ctime>
 #include "relation.h"
 #include "strategy.h"
+#include <cstring>
 
 struct chatMessage
 {
@@ -18,18 +19,6 @@ struct chatMessage
     struct tm dateTime;
     std::string userName;
     std::string message;
-
-    chatMessage& operator=(const chatMessage& originalMessage)
-    {
-        if (this == &originalMessage)
-            return *this;
-
-        dateTime = originalMessage.dateTime;
-        userName = originalMessage.userName;
-        message = originalMessage.message;
-
-        return *this;
-    }
 };
 
 std::vector<std::string> split(const std::string& str, const std::string& delimer)
@@ -53,12 +42,12 @@ std::vector<std::string> split(const std::string& str, const std::string& delime
     return wordVector;
 }
 
-void interpreter(const std::string& inputFileName, const std::string& outputFileName)
+std::forward_list<chatMessage> fromFileToList(const std::string& inputFileName)
 {
     std::ifstream inputFile(inputFileName);
-    std::ofstream outputFile(outputFileName);
     std::string tmpString;
     std::vector<std::string> parsedString;
+    std::forward_list<chatMessage> forwardList;
     chatMessage message;
 
     if (!inputFile)
@@ -72,18 +61,10 @@ void interpreter(const std::string& inputFileName, const std::string& outputFile
         message.dateTime.tm_min = std::stoi(parsedString[1]);
         message.userName = parsedString[3];
         message.message = parsedString[6];
+        forwardList.push_front(message);
     }
+    return forwardList;
 }
-
-//class StrategyInt : public Strategy<int>{
-//    int compare(int left, int right) const override {
-//        if (left == right)
-//            return 0;
-//        else if (left < right)
-//            return -1;
-//        return 1;
-//    }
-//};
 
 class StrategyDateTime : public Strategy<chatMessage>{
     int compare(chatMessage left, chatMessage right) const override {
@@ -98,14 +79,59 @@ class StrategyDateTime : public Strategy<chatMessage>{
     }
 };
 
+class UsernameCaseSensitiveStrategy : public Strategy<chatMessage>{
+    int compare(chatMessage left, chatMessage right) const override {
+        int comparisonResult = strcmp(left.userName.c_str(), right.userName.c_str());
+        if (comparisonResult > 0)
+            return 1;
+        else if (comparisonResult < 0)
+            return -1;
+        return 0;
+    }
+};
+
+class UsernameCaseInsensitiveStrategy : public Strategy<chatMessage>{
+    int compare(chatMessage left, chatMessage right) const override {
+        for (auto &c: left.userName) c = (char)std::toupper(c);
+        for (auto &c: right.userName) c = (char)std::toupper(c);
+        int comparisonResult = strcmp(left.userName.c_str(), right.userName.c_str());
+        if (comparisonResult > 0)
+            return 1;
+        else if (comparisonResult < 0)
+            return -1;
+        return 0;
+    }
+};
+
+class PrimaryDateTimeSecondaryUsernameCaseInsensitive : public Strategy<chatMessage>{
+    Strategy<chatMessage>* primaryComp = new StrategyDateTime();
+    Strategy<chatMessage>* secondaryComp = new UsernameCaseInsensitiveStrategy();
+    int compare(chatMessage left, chatMessage right) const override{
+        int primaryComparisonResult = primaryComp->compare(left, right);
+        if (primaryComparisonResult == 0)
+        {
+            int secondaryComparisonResult = secondaryComp->compare(left, right);
+            if (secondaryComparisonResult == -1)
+                return -1;
+            else if (secondaryComparisonResult == 1)
+                return 1;
+            return 0;
+        }
+        else if (primaryComparisonResult == -1)
+            return -1;
+        return 1;
+    }
+};
+
 int main(int argc, char **argv)
 {
-    Strategy<chatMessage> *dateTimeStrategy = new StrategyDateTime();
-    Strategy<int> *intStrategy = new StrategyInt;
-
-    Relation<int> relation1;
+    std::vector<int> guidVector;
     Relation<chatMessage> relation;
-    int firstGuid = relation.addIndex(RB, dateTimeStrategy);
-    int secondGuid = relation1.addIndex(RB, intStrategy);
-    interpreter(argv[1], argv[2]);
+    guidVector.push_back(relation.addIndex(AVL, new StrategyDateTime()));
+    relation.addDataList(fromFileToList(argv[1]));
+    guidVector.push_back(relation.addIndex(RB, new UsernameCaseSensitiveStrategy()));
+    guidVector.push_back(relation.addIndex(AVL, new UsernameCaseInsensitiveStrategy()));
+    guidVector.push_back(relation.addIndex(RB, new PrimaryDateTimeSecondaryUsernameCaseInsensitive()));
+
+    return 0;
 }
