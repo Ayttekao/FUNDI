@@ -86,11 +86,14 @@ public:
             throw std::invalid_argument("Index does not exist!");
     }
 
-    bool findDataByValue(T&& data)
+    bool findDataByValue(int indexGuid, T&& data)
     {
-        for (auto iter : dataList)
-            if (iter == data)
+        if (indexMap.find(indexGuid) != indexMap.end())
+        {
+            auto node = indexMap[indexGuid]->searchByValue(data);
+            if (node != nullptr)
                 return true;
+        }
         return false;
     }
 
