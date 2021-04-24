@@ -94,7 +94,7 @@ protected:
         else
             x->parent->right = y;
 
-        y->parent = x->parent;
+            y->parent = x->parent;
         x->parent = y;
         y->right = x;
     }

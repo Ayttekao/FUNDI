@@ -16,7 +16,7 @@ struct chatMessage
 {
     chatMessage() = default;
 
-    struct tm dateTime;
+    struct tm dateTime{};
     std::string userName;
     std::string message;
 };

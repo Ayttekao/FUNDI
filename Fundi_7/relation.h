@@ -20,6 +20,12 @@ class Relation
 private:
     std::forward_list<T> dataList;
     std::map<int, BinaryTree<T>*> indexMap;
+    void addTreeToMap(int indexGuid, BinaryTree<T>* tree)
+    {
+        indexMap.insert(std::pair<int, BinaryTree<T>*>(indexGuid, tree));
+        for (auto iter : dataList)
+            (*tree).addNode(static_cast<T&&>(iter));
+    }
 public:
     Relation() = default;
     explicit Relation(const std::forward_list<T>& _dataList)
@@ -33,7 +39,6 @@ public:
         for (auto iter : indexMap)
             for (auto secondIter : dataList)
                 iter.second->addNode(static_cast<T&&>(secondIter));
-
     }
 
     void addData(T&& data)
@@ -54,13 +59,6 @@ public:
                 return;
             }
         throw std::invalid_argument("Value doesn't exist!");
-    }
-
-    void addTreeToMap(int indexGuid, BinaryTree<T>* tree)
-    {
-        indexMap.insert(std::pair<int, BinaryTree<T>*>(indexGuid, tree));
-        for (auto iter : dataList)
-            (*tree).addNode(static_cast<T&&>(iter));
     }
 
     int addIndex(bool typeTree, Strategy<T> *strategy)
