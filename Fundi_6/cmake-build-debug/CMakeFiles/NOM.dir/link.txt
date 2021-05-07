@@ -1,0 +1,1 @@
+/usr/bin/c++ -g CMakeFiles/NOM.dir/NOM.cpp.o -o NOM 

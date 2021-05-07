@@ -9,6 +9,14 @@
 /home/ayttekao/CLionProjects/Fundi/Fundi_6/main.cpp
 iostream
 -
+matrix.h
+/home/ayttekao/CLionProjects/Fundi/Fundi_6/matrix.h
+monom.h
+/home/ayttekao/CLionProjects/Fundi/Fundi_6/monom.h
+polynom.h
+/home/ayttekao/CLionProjects/Fundi/Fundi_6/polynom.h
+
+/home/ayttekao/CLionProjects/Fundi/Fundi_6/matrix.h
 fstream
 -
 vector
@@ -19,4 +27,20 @@ sstream
 -
 cmath
 -
+
+/home/ayttekao/CLionProjects/Fundi/Fundi_6/monom.h
+map
+-
+algorithm
+-
+iostream
+-
+cstring
+-
+
+/home/ayttekao/CLionProjects/Fundi/Fundi_6/polynom.h
+list
+-
+monom.h
+/home/ayttekao/CLionProjects/Fundi/Fundi_6/monom.h
 
