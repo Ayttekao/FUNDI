@@ -1,1 +1,5 @@
-
+[Sat May  8 01:07:13 2021][FATAL]:HEEEELP
+[Sat May  8 01:07:13 2021][FATAL]:THIS IS ХОРОШО
+[Sat May  8 01:07:13 2021][FATAL]:THIS IS ХОРОШО
+[Sat May  8 01:07:13 2021][FATAL]:THIS IS ХОРОШО
+[Sat May  8 01:07:13 2021][FATAL]:THIS IS ХОРОШО

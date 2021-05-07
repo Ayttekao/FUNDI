@@ -1,0 +1,16 @@
+{
+  "streams": [
+    {
+      "name": "stdout",
+      "severity": "DEBUG"
+    },
+    {
+      "name": "file1.txt",
+      "severity": "WARNING"
+    },
+    {
+      "name": "file2.txt",
+      "severity": "FATAL"
+    }
+  ]
+}
