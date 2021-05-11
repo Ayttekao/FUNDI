@@ -1,0 +1,3 @@
+/home/ayttekao/CLionProjects/Fundi/Chess_Eight_Queens/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/home/ayttekao/CLionProjects/Fundi/Chess_Eight_Queens/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/ayttekao/CLionProjects/Fundi/Chess_Eight_Queens/cmake-build-debug/CMakeFiles/Chess_Eight_Queens.dir
