@@ -1,0 +1,1 @@
+/usr/bin/c++ -g CMakeFiles/Fundi_coursework_4_semester_.dir/main.cpp.o -o Fundi_coursework_4_semester_ 

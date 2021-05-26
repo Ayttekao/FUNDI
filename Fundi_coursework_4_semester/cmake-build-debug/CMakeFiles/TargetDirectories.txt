@@ -1,0 +1,3 @@
+/home/ayttekao/CLionProjects/Fundi/4Semestr/Fundi_coursework_4_semester/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/home/ayttekao/CLionProjects/Fundi/4Semestr/Fundi_coursework_4_semester/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/ayttekao/CLionProjects/Fundi/4Semestr/Fundi_coursework_4_semester/cmake-build-debug/CMakeFiles/Fundi_coursework_4_semester_.dir

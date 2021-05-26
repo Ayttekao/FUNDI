@@ -1,0 +1,1 @@
+/usr/bin/c++ -g CMakeFiles/fabric.dir/fabric.cpp.o -o fabric 
